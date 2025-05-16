@@ -86,10 +86,53 @@ int totalhand(vector<tuple<int, string>> hand) {
   total = 0;
   for (int i {0}; i < cards.size(); i++){
     total += cards.at(i);
-    cout << cards.at(i) << endl;
+    //cout << cards.at(i) << endl;
   }
-  cout << total << endl;
+  cout << "card total: " << total << endl;
   return total;
+}
+void hit (vector<tuple<int, string>> hand, vector<tuple<int, string>> deck) {
+  bool bust {false};
+    int i {4};
+    i++;
+    tuple<int, string> card{deck.at(i)};
+    hand.push_back(make_tuple(get<0>(card), get<1>(card)));
+    if (get<0>(card) <= 10 && get<0>(card) != 1){
+      cout << get<0>(card) << " of " << get<1>(card) << endl;
+    } else if (get<0>(card) > 10){
+      if (get<0>(card) = 11){
+        cout << "Jack of " << get<1>(card) << endl;
+      } else if (get<0>(card) = 12){
+        cout << "Queen of " << get<1>(card) << endl;
+      } else {
+        cout << "King of " << get<1>(card) << endl;
+      }
+    } else {
+      cout << "Ace of " << get<1>(card) << endl;
+    }
+    if (totalhand(hand) > 21){
+      bust = true;
+      cout << "You busted" << endl;
+  }
+}
+bool bust (vector<tuple<int, string>> hand){
+  bool bust {false};
+  if (totalhand(hand) > 21){
+    return !bust;
+  } else {
+    return bust;
+  }
+}
+char input () {
+  char choice {};
+  cout << "hit or stand (h,s): ";
+  cin >> choice;
+  choice = toupper(choice);
+  if (choice == 'H' || choice == 'S'){
+    return choice;
+  } else {
+    return 'N';
+  }
 }
 void dealing(vector<tuple<int, string>> deck) {
   vector<tuple<int, string>> userhand{};
@@ -98,19 +141,28 @@ void dealing(vector<tuple<int, string>> deck) {
   for (int i{0}; i < 2; i++) {
     tuple<int, string> usercard{deck.at(i)};
     userhand.push_back(make_tuple(get<0>(usercard), get<1>(usercard)));
-    cout << get<0>(usercard) << " " << get<1>(usercard) << endl;
+    //cout << get<0>(usercard) << " " << get<1>(usercard) << endl;
   }
   //next 2 cards for the system's hand
   for (int i{2}; i < 4; i++) {
     tuple<int, string> syscard{deck.at(i)};
     syshand.push_back(make_tuple(get<0>(syscard), get<1>(syscard)));
-    cout << get<0>(syscard) << " " << get<1>(syscard) << endl;
+    //cout << get<0>(syscard) << " " << get<1>(syscard) << endl;
   }
+  cout << "here are the cards: " << endl;
   cardnames(userhand, syshand);
+  cout << "the total amount of your cards: " << endl;
   totalhand(userhand);
+  cout << "the total amount of the dealer's cards: " << endl;
   totalhand(syshand);
+  
+  while (!bust(userhand)){
+    char choice {input()};
+    if (choice == 'H'){
+      hit(userhand, deck);
+    }
+  }
 }
-
 
 
 int main() {
