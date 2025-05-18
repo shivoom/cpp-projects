@@ -88,14 +88,11 @@ int totalhand(vector<tuple<int, string>> hand) {
     total += cards.at(i);
     //cout << cards.at(i) << endl;
   }
-  cout << "card total: " << total << endl;
   return total;
 }
-void hit (vector<tuple<int, string>> hand, vector<tuple<int, string>> deck) {
+vector<tuple<int, string>> hit (vector<tuple<int, string>> hand, vector<tuple<int, string>> deck, int cardnum) {
   bool bust {false};
-    int i {4};
-    i++;
-    tuple<int, string> card{deck.at(i)};
+    tuple<int, string> card{deck.at(cardnum)};
     hand.push_back(make_tuple(get<0>(card), get<1>(card)));
     if (get<0>(card) <= 10 && get<0>(card) != 1){
       cout << get<0>(card) << " of " << get<1>(card) << endl;
@@ -114,6 +111,8 @@ void hit (vector<tuple<int, string>> hand, vector<tuple<int, string>> deck) {
       bust = true;
       cout << "You busted" << endl;
   }
+  cardnum++;
+  return hand;
 }
 bool bust (vector<tuple<int, string>> hand){
   bool bust {false};
@@ -134,6 +133,40 @@ char input () {
     return 'N';
   }
 }
+vector<tuple<int, string>> dealerhit (vector<tuple<int, string>> hand, vector<tuple<int, string>> deck, int cardnum){
+  random_device rd;
+  mt19937 gen(rd());
+  uniform_int_distribution<> dis(1,10);
+  int chance {dis(gen)};
+  if (totalhand(hand) == 21){
+    //stand
+  } else if (totalhand(hand) <= 10){
+    hand = hit(hand, deck, cardnum);
+  } else if (totalhand(hand) > 10 && totalhand(hand) < 14){
+    if(chance >= 1 && chance <= 7){
+      hand = hit(hand, deck, cardnum);
+
+    } else {
+      //stand
+    }
+  } else if (totalhand(hand) > 13 && totalhand(hand) < 17){
+    if(chance >= 1 && chance <= 5){
+      hand = hit(hand, deck, cardnum);
+    } else {
+      //stand
+    }
+  } else if (totalhand(hand) > 16 && totalhand(hand) < 20){
+    if(chance >= 1 && chance <= 3){
+      hand = hit(hand, deck, cardnum);
+    } else {
+      //stand
+    }
+  } else {
+    //stand
+  }
+  return hand;
+}
+
 void dealing(vector<tuple<int, string>> deck) {
   vector<tuple<int, string>> userhand{};
   vector<tuple<int, string>> syshand{};
@@ -151,17 +184,20 @@ void dealing(vector<tuple<int, string>> deck) {
   }
   cout << "here are the cards: " << endl;
   cardnames(userhand, syshand);
-  cout << "the total amount of your cards: " << endl;
-  totalhand(userhand);
-  cout << "the total amount of the dealer's cards: " << endl;
-  totalhand(syshand);
-  
-  while (!bust(userhand)){
+  cout << "the total amount of your cards: " << totalhand(userhand) << endl;
+  cout << "the total amount of the dealer's cards: " << totalhand(syshand) << endl;  
+  int hitnum{4};
+  do {
     char choice {input()};
     if (choice == 'H'){
-      hit(userhand, deck);
+      userhand = hit(userhand, deck, hitnum);
+      hitnum++;
     }
-  }
+    if (choice == 'S'){
+      syshand = hit(syshand, deck, hitnum);
+      hitnum++;
+    }
+  } while(!bust(userhand) || !bust(syshand));
 }
 
 
