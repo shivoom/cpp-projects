@@ -5,7 +5,6 @@
 #include <tuple>
 using namespace std;
 
-
 vector<tuple<int, string>> randdeck() {
   // generating random numbers and defining cards/suits
   random_device rd;
@@ -92,24 +91,26 @@ int totalhand(vector<tuple<int, string>> hand) {
 }
 vector<tuple<int, string>> hit (vector<tuple<int, string>> hand, vector<tuple<int, string>> deck, int cardnum) {
   bool bust {false};
-    tuple<int, string> card{deck.at(cardnum)};
-    hand.push_back(make_tuple(get<0>(card), get<1>(card)));
-    if (get<0>(card) <= 10 && get<0>(card) != 1){
-      cout << get<0>(card) << " of " << get<1>(card) << endl;
-    } else if (get<0>(card) > 10){
-      if (get<0>(card) = 11){
-        cout << "Jack of " << get<1>(card) << endl;
-      } else if (get<0>(card) = 12){
-        cout << "Queen of " << get<1>(card) << endl;
-      } else {
-        cout << "King of " << get<1>(card) << endl;
-      }
+  //add new card into the hand from the deck using the cardnum to index through the deck to avoid repeats
+  tuple<int, string> card{deck.at(cardnum)};
+  hand.push_back(make_tuple(get<0>(card), get<1>(card)));
+  //printing the name of the card drawn
+  if (get<0>(card) <= 10 && get<0>(card) != 1){
+    cout << get<0>(card) << " of " << get<1>(card) << endl;
+  } else if (get<0>(card) > 10){
+    if (get<0>(card) = 11){
+      cout << "Jack of " << get<1>(card) << endl;
+    } else if (get<0>(card) = 12){
+      cout << "Queen of " << get<1>(card) << endl;
     } else {
-      cout << "Ace of " << get<1>(card) << endl;
+      cout << "King of " << get<1>(card) << endl;
     }
-    if (totalhand(hand) > 21){
-      bust = true;
-      cout << "You busted" << endl;
+  } else {
+    cout << "Ace of " << get<1>(card) << endl;
+  }
+  if (totalhand(hand) > 21){
+    bust = true;
+    cout << "You busted" << endl;
   }
   cardnum++;
   return hand;
@@ -117,9 +118,9 @@ vector<tuple<int, string>> hit (vector<tuple<int, string>> hand, vector<tuple<in
 bool bust (vector<tuple<int, string>> hand){
   bool bust {false};
   if (totalhand(hand) > 21){
-    return !bust;
-  } else {
     return bust;
+  } else {
+    return !bust;
   }
 }
 char input () {
@@ -130,6 +131,7 @@ char input () {
   if (choice == 'H' || choice == 'S'){
     return choice;
   } else {
+    //if input doesnt match an option
     return 'N';
   }
 }
@@ -138,33 +140,61 @@ vector<tuple<int, string>> dealerhit (vector<tuple<int, string>> hand, vector<tu
   mt19937 gen(rd());
   uniform_int_distribution<> dis(1,10);
   int chance {dis(gen)};
-  if (totalhand(hand) == 21){
-    //stand
-  } else if (totalhand(hand) <= 10){
-    hand = hit(hand, deck, cardnum);
-  } else if (totalhand(hand) > 10 && totalhand(hand) < 14){
-    if(chance >= 1 && chance <= 7){
-      hand = hit(hand, deck, cardnum);
-
-    } else {
+  bool stand {false};
+  //while loop with the logic behind if the dealer hits or stands
+  do {
+    cout << "Dealer hits: ";
+    if (totalhand(hand) == 21){
       //stand
-    }
-  } else if (totalhand(hand) > 13 && totalhand(hand) < 17){
-    if(chance >= 1 && chance <= 5){
+      stand = true;
+      //cout << "21 stand" << endl;
+    } else if (totalhand(hand) <= 10){
+      //always hitting when the total hand is less than 10
       hand = hit(hand, deck, cardnum);
+      //cout << "greater than 10 hit" << endl;
+    } else if (totalhand(hand) > 10 && totalhand(hand) < 14){
+      if(chance >= 1 && chance <= 7){
+        //70% chance to hit if hand is between 11 and 13
+        hand = hit(hand, deck, cardnum);
+        //cout << "greater than 10 less that 14 hit" << endl;
+      } else {
+        //stand
+        stand = true;
+        //cout << "greater than 10 less that 14 stand" << endl;
+      }
+    } else if (totalhand(hand) > 13 && totalhand(hand) < 17){
+      if(chance >= 1 && chance <= 5){
+        //50% chance to hit if hand is between 14 and 16
+        hand = hit(hand, deck, cardnum);
+        //cout << "greater than 13 less than 17 hit" << endl;
+      } else {
+        //stand
+        stand = true;
+        //cout << "greater than 13 less than 17 stand" << endl;
+      }
+    } else if (totalhand(hand) > 16 && totalhand(hand) < 20){
+      if(chance >= 1 && chance <= 3){
+        //30% chance to hit if hand is between 17 and 19
+        hand = hit(hand, deck, cardnum);
+        //cout << "greater than 16 less than 20 hit" << endl;
+      } else {
+        //cout << "greater than 16 less than 20 stand" << endl;
+        //stand
+        stand = true;
+      }
     } else {
+      //always stand if hand greater than 19
+      cout << "Dealer stands" << endl;
       //stand
+      stand = true;
     }
-  } else if (totalhand(hand) > 16 && totalhand(hand) < 20){
-    if(chance >= 1 && chance <= 3){
-      hand = hit(hand, deck, cardnum);
-    } else {
-      //stand
-    }
-  } else {
-    //stand
-  }
+    cardnum++;
+  } while (!stand);
   return hand;
+}
+
+void stand (vector<tuple<int, string>> userhand, vector<tuple<int, string>> syshand) {
+  
 }
 
 void dealing(vector<tuple<int, string>> deck) {
@@ -185,21 +215,47 @@ void dealing(vector<tuple<int, string>> deck) {
   cout << "here are the cards: " << endl;
   cardnames(userhand, syshand);
   cout << "the total amount of your cards: " << totalhand(userhand) << endl;
-  cout << "the total amount of the dealer's cards: " << totalhand(syshand) << endl;  
+  //cout << "the total amount of the dealer's cards: " << totalhand(syshand) << endl;  
   int hitnum{4};
+  bool stand {false};
   do {
     char choice {input()};
     if (choice == 'H'){
       userhand = hit(userhand, deck, hitnum);
+      cout << "Your hand: " << totalhand(userhand) << endl;
       hitnum++;
+    } else if (choice == 'S'){
+      syshand = dealerhit(syshand, deck, hitnum);
+      stand = true;      
+    } else if (choice == 'N'){
+      cout << "invalid input, ";
     }
-    if (choice == 'S'){
-      syshand = hit(syshand, deck, hitnum);
-      hitnum++;
+  } while((bust(userhand) && bust(syshand)) && !stand);
+  
+  if (!bust(userhand)){
+    cout << "Dealer wins, you busted\nYou had " << 
+    totalhand(userhand) << " and the Dealer had " << 
+    totalhand(syshand) << endl;
+  } else if (!bust(syshand)){
+    cout << "You win, Dealer busted\nYou had " << 
+    totalhand(userhand) << " and the Dealer had " << 
+    totalhand(syshand) << endl;
+  } else {
+    if (totalhand(userhand) == totalhand(syshand)){
+      cout << "Tie!\nYou had " << 
+      totalhand(userhand) << " and the Dealer had " << 
+      totalhand(syshand) << endl;
+    } else if (totalhand(userhand) > totalhand(syshand)){
+      cout << "You win!\nYou had " << 
+      totalhand(userhand) << " and the Dealer had " << 
+      totalhand(syshand) << endl;
+    } else {
+      cout << "Dealer wins!\nYou had " << 
+      totalhand(userhand) << " and the Dealer had " << 
+      totalhand(syshand) << endl;
     }
-  } while(!bust(userhand) || !bust(syshand));
+  }
 }
-
 
 int main() {
   vector<tuple<int, string>> deck {randdeck()};
